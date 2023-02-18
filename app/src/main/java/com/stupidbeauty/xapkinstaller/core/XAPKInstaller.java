@@ -192,21 +192,24 @@ public class XAPKInstaller
       
       if (partAmount>0) // Got something
       {
-        int xapkPartCounter=0;
-        
-        for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++)
-        {
-          XAPKPart xapkPart=xapkParts.get(xapkPartCounter);
-          
-          String partFiePath=xapkPart.getFile();
-          String partId=xapkPart.getId();
-          
-          File downloadFolder = baseApplication.getExternalCacheDir();
+//         int xapkPartCounter=0;
+//         
+//         for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++)
+//         {
+//           XAPKPart xapkPart=xapkParts.get(xapkPartCounter);
+//           
+//           String partFiePath=xapkPart.getFile();
+//           String partId=xapkPart.getId();
+//           
+//           File downloadFolder = baseApplication.getExternalCacheDir();
+// 
+//           String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+// 
+// //           requestInstallApi(wholePath, statusReceiver, partId); // Request install by view.
+//         } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
 
-          String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+        requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
 
-          requestInstallApi(wholePath, statusReceiver, partId); // Request install by view.
-        } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
         
         result=true;
       } // if (partAmount>0) // Got something
@@ -218,6 +221,56 @@ public class XAPKInstaller
     
     return result;
   } //private void requestInstall(String downloadFilePath)
+  
+  private void requestInstallApiParts(ArrayList<XAPKPart> xapkParts, IntentSender statusReceiver) // Request install by view.
+  {
+      PackageInstaller.Session session = null;
+    try
+    {
+      PackageInstaller packageInstaller = baseApplication.getPackageManager().getPackageInstaller();
+      PackageInstaller.SessionParams params = new PackageInstaller.SessionParams( PackageInstaller.SessionParams.MODE_FULL_INSTALL);
+      int sessionId = packageInstaller.createSession(params);
+      session = packageInstaller.openSession(sessionId);
+
+        int xapkPartCounter=0;
+        
+        int partAmount=xapkParts.size();
+        for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++)
+        {
+          XAPKPart xapkPart=xapkParts.get(xapkPartCounter);
+          
+          String partFiePath=xapkPart.getFile();
+          String partId=xapkPart.getId();
+          
+          File downloadFolder = baseApplication.getExternalCacheDir();
+
+          String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+          
+          String downloadFilePath= wholePath;
+
+          Log.d(TAG,"requestInstallApiParts, 250, add part: " + partId); //Debug.
+          addApkToInstallSession(downloadFilePath, session, partId);
+
+//           requestInstallApi(wholePath, statusReceiver, partId); // Request install by view.
+        } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
+  
+        Log.d(TAG,"requestInstallApiParts, 256, commit "); //Debug.
+        session.commit(statusReceiver);
+    }
+    catch (IOException e) 
+    {
+      throw new RuntimeException("Couldn't install package", e);
+    }
+    catch (RuntimeException e) 
+    {
+      if (session != null) 
+      {
+        session.abandon();
+      }
+      throw e;
+    }
+
+  } // private void requestInstallApiParts(ArrayList<XAPKPart> xapkParts, IntentSender statusReceiver)
 
   /**
   * 要求安装应用
@@ -260,13 +313,6 @@ public class XAPKInstaller
       }
       throw e;
     }
-
-    //             Intent intent = new Intent(Intent.ACTION_INSTALL_PACKAGE);
-    //             intent.setData(getApkUri("HelloActivity.apk"));
-    //             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    //             startActivity(intent);
-    //    
-        
   } //private void requestInstall(String downloadFilePath)
 
   private void addApkToInstallSession(String assetName, PackageInstaller.Session session, String partId) throws IOException 
