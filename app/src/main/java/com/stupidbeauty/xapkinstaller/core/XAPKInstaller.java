@@ -137,8 +137,14 @@ public class XAPKInstaller
         InputStream entryInputStream=zipFile.getInputStream(entry);
         
   //       Chen xin. open the inputstream to file.
+  
+        File downloadFolder = baseApplication.getExternalCacheDir();
 
-        File entryFile=new File(entryFioleName);
+        String wholePath =downloadFolder.getPath()+ File.separator  + entryFioleName;
+
+        String entryFileFullName=wholePath;
+
+        File entryFile=new File(entryFileFullName);
         
         FileUtils.copyInputStreamToFile(entryInputStream, entryFile);
       } // while(entries.hasMoreElements())
@@ -196,12 +202,15 @@ public class XAPKInstaller
           String partFiePath=xapkPart.getFile();
           String partId=xapkPart.getId();
           
-          requestInstallApi(partFiePath, statusReceiver, partId); // Request install by view.
+          File downloadFolder = baseApplication.getExternalCacheDir();
+
+          String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+
+          requestInstallApi(wholePath, statusReceiver, partId); // Request install by view.
         } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
         
         result=true;
       } // if (partAmount>0) // Got something
-      
     } // try
 //     catch(ZipException e)
 //     {
