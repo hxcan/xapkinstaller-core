@@ -1,5 +1,6 @@
 package com.stupidbeauty.xapkinstaller.core;
 
+import java.util.zip.ZipException;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import java.util.Enumeration;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
@@ -100,7 +101,7 @@ public class XAPKInstaller
   private VoiceUi voiceUi=null; //!< 语音交互对象。
   private int NOTIFICATION = 84951; //!< 通知编号。陈欣
   private long MinimalApkSize = 250; //!< minimal accepted apk file size.
-  private String packageName=null; //!< 包名。
+
   public Future<File> fileDownloadFuture; //!< The file download future.
   private NotificationManager mNM;
   private Context baseApplication = null; //!< 上下文对象。
@@ -110,7 +111,7 @@ public class XAPKInstaller
   /**
   * Extract xapk file parts.
   */
-  private ArrayList<XAPKPart> extractXapk(String downloadFilePath)
+  private ArrayList<XAPKPart> extractXapk(String downloadFilePath) throws ZipException
   {
     ArrayList<XAPKPart> result=new ArrayList();
     
@@ -170,8 +171,12 @@ public class XAPKInstaller
     * 要求安装应用
     * @param downloadFilePath 应用安装包路径
     */
-  public void installXapk(String downloadFilePath, IntentSender statusReceiver)
+  public boolean installXapk(String downloadFilePath, IntentSender statusReceiver)
   {
+    boolean result=false;
+    
+    try
+    {
     ArrayList<XAPKPart> xapkParts=extractXapk(downloadFilePath);
     
     int xapkPartCounter=0;
@@ -185,6 +190,16 @@ public class XAPKInstaller
       
       requestInstallApi(partFiePath, statusReceiver, partId); // Request install by view.
     } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
+    
+    result=true;
+    
+    }
+    catch(ZipException e)
+    {
+      e.printStackTrace();
+    }
+    
+    return result;
   } //private void requestInstall(String downloadFilePath)
 
   /**
