@@ -152,17 +152,13 @@ public class XAPKInstaller
       //     Chen xin, parse manifest.json 
       Gson gson=new Gson(); //创建gson对象。
 
-      File manifestFile=new File("manifest.json");
+      File downloadFolder = baseApplication.getExternalCacheDir();
+
+      String wholePath =downloadFolder.getPath()+ File.separator  + "manifest.json";
+      File manifestFile=new File(wholePath);
     
       String text=FileUtils.readFileToString(manifestFile);
       XAPKManifest voiceRecognizeResult=gson.fromJson(text, XAPKManifest.class); // 解析成结果对象。
-      //     String saidText=voiceRecognizeResult.getSaidText(); //获取完整的说出内容。
-
-      //     voiceRecognizeResultString=voiceRecognizeResultString+saidText; //追加结果。
-
-      //     Log.i(TAG,"onResult, result: "+voiceRecognizeResultString+", is empty?: " + voiceRecognizeResultString.isEmpty()+ ", length: " + voiceRecognizeResultString.length()); //Debug.
-
-      //     boolean isLast=voiceRecognizeResult.isLs(); //获取属性，是否是最终结果。
 
       result=voiceRecognizeResult.getSplitApks();
     }
