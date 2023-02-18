@@ -120,6 +120,7 @@ public class XAPKInstaller
 //     Chen xin.
 
     ZipFile zipFile=new ZipFile(downloadFilePath);
+    Log.d(TAG,"extractXapk, 123"); //Debug.
     
     Enumeration<ZipArchiveEntry> entries=zipFile.getEntries();
     
@@ -164,6 +165,8 @@ public class XAPKInstaller
       e.printStackTrace();
     }
 
+    Log.d(TAG,"extractXapk, 168, result size: "+ result.size()); //Debug.
+    
     return result;
   } // private ArrayList<XAPKPart> extractXapk(String downloadFilePath)
   
@@ -193,7 +196,7 @@ public class XAPKInstaller
     
     result=true;
     
-    }
+    } // try
     catch(ZipException e)
     {
       e.printStackTrace();
