@@ -106,7 +106,6 @@ public class XAPKInstaller
   private NotificationManager mNM;
   private Context baseApplication = null; //!< 上下文对象。
   private static final String TAG="XAPKInstaller"; //!<输出调试信息了时使用的标记
-  private long downloadId; //!<当前的下载编号
   
   /**
   * Extract xapk file parts.
@@ -158,8 +157,12 @@ public class XAPKInstaller
       File manifestFile=new File(wholePath);
     
       String text=FileUtils.readFileToString(manifestFile);
+      
+      Log.d(TAG,"extractXapk, 162, text: " + text); //Debug.
+
       XAPKManifest voiceRecognizeResult=gson.fromJson(text, XAPKManifest.class); // 解析成结果对象。
 
+      Log.d(TAG,"extractXapk, 166, parse result: " + voiceRecognizeResult); //Debug.
       result=voiceRecognizeResult.getSplitApks();
     }
     catch (IOException e)

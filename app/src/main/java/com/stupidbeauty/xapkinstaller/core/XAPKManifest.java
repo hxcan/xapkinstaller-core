@@ -1,5 +1,10 @@
 package com.stupidbeauty.xapkinstaller.core;
 
+import android.util.Log;
+import android.app.Application;
+import android.os.Looper;
+import com.stupidbeauty.voiceui.VoiceUi;
+import android.content.pm.PackageInfo;
 import android.os.Environment;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,12 +20,24 @@ import java.io.File;
  */
 class XAPKManifest
 {
+  private static final String TAG="XAPKManifest"; //!< 输出调试信息了时使用的标记
 	private ArrayList<XAPKPart> splitApks; //!< split apks list.
+	private ArrayList<XAPKPart> split_apks; //!< split apks list.
 
-	public static final String LOG_BASE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"com.stupidbeauty.hxlauncher"+File.separator+"Log"; //!<日志目录的路径。
-	
 	public ArrayList<XAPKPart> getSplitApks()
 	{
-    return splitApks;
+    ArrayList<XAPKPart> result;
+    if (splitApks!=null)
+    {
+      Log.d(TAG,"getSplitApks, 26, splitApks"); //Debug.
+      result=splitApks;
+    }
+    else
+    {
+      Log.d(TAG,"getSplitApks, 26, split_apks"); //Debug.
+      result=split_apks;
+    }
+	
+    return result;
 	} // public ArrayList<XAPKPart> getSplitApks()
 }
