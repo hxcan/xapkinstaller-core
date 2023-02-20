@@ -25,7 +25,7 @@ import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.app.Application;
 import android.os.Looper;
-import com.stupidbeauty.voiceui.VoiceUi;
+// import com.stupidbeauty.voiceui.VoiceUi;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageItemInfo;
 import android.content.pm.PackageManager;
@@ -94,7 +94,6 @@ public class XAPKInstaller
   private static final String PACKAGE_INSTALLED_ACTION = "com.example.android.apis.content.SESSION_API_PACKAGE_INSTALLED";
   private String fullUrl = null; //!< Downloading full url.
   private Notification continiusNotification=null; //!<记录的通知
-  private VoiceUi voiceUi=null; //!< 语音交互对象。
   private int NOTIFICATION = 84951; //!< 通知编号。陈欣
   private long MinimalApkSize = 250; //!< minimal accepted apk file size.
 
@@ -331,9 +330,6 @@ public class XAPKInstaller
 
   public XAPKInstaller(Context context) 
   {
-//     BlindBoxApplication baseApplication = BlindBoxApplication.getInstance(); //获取应用程序对象。
-    baseApplication = context; // 获取应用程序对象。
-  
-    voiceUi=new VoiceUi(baseApplication); // 创建语音交互对象。
-  } // public DownloadRequestor() 
+    baseApplication = context; // 获取 context 对象。
+  } // public XAPKInstaller(Context context) 
 }

@@ -3,7 +3,7 @@ package com.stupidbeauty.xapkinstaller.core;
 import android.util.Log;
 import android.app.Application;
 import android.os.Looper;
-import com.stupidbeauty.voiceui.VoiceUi;
+// import com.stupidbeauty.voiceui.VoiceUi;
 import android.content.pm.PackageInfo;
 import android.os.Environment;
 import java.util.ArrayList;
