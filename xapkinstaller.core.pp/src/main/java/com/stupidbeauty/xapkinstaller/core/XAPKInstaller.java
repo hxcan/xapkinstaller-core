@@ -87,7 +87,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
-import com.stupidbeauty.hxlauncher.bean.ApplicationListData;
 import org.apache.commons.io.FilenameUtils;
 import java.io.File;
 
