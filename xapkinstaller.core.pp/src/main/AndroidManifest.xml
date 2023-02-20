@@ -38,7 +38,6 @@
       android:launchMode="singleInstance" />
     <activity android:name=".AutoRunSettingsActivity" android:theme="@android:style/Theme.Holo.Light"/>
     <activity android:name=".ApplicationFrequencySettingsActivity" android:theme="@android:style/Theme.Holo.Light"/>
-    <activity android:name=".ApplicationAliasSettingsActivity" android:theme="@android:style/Theme.Holo.Light"/>
     <activity android:name=".activity.AccountActivity" android:label="@string/myAccount" />
     <receiver android:name="com.stupidbeauty.shutdownat2100androidnative.BootBroadcastReceiver">
       <intent-filter>
