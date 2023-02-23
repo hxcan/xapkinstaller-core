@@ -174,21 +174,26 @@ public class XAPKInstaller
     boolean result=false;
     
     XAPKManifest xapkManifest=extractXapk(downloadFilePath);
-    ArrayList<XAPKPart> xapkParts=xapkManifest.getSplitApks(); // Get apk parts.
     
-    int partAmount=xapkParts.size();
-    
-    if (partAmount>0) // Got something
+    if (xapkManifest!=null) // extract success
     {
-      boolean installExpansinCussess= installExpansions(xapkManifest); // Install expansions.
+      ArrayList<XAPKPart> xapkParts=xapkManifest.getSplitApks(); // Get apk parts.
       
-      if (installExpansinCussess)
+      int partAmount=xapkParts.size();
+      
+      if (partAmount>0) // Got something
       {
-        requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
+        boolean installExpansinCussess= installExpansions(xapkManifest); // Install expansions.
         
-        result=true;
-      } // if (installExpansinCussess)
-    } // if (partAmount>0) // Got something
+        if (installExpansinCussess)
+        {
+          requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
+          
+          result=true;
+        } // if (installExpansinCussess)
+      } // if (partAmount>0) // Got something
+      
+    } // if (xapkManifest!=null) // extract success
     
     return result;
   } //private void requestInstall(String downloadFilePath)
