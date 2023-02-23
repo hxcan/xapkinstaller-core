@@ -302,6 +302,10 @@ public class XAPKInstaller
 //         throw new RuntimeException("Couldn't install package", e);
       } // catch (IOException e) 
     } // if (xapkParts!=null)
+    else // no expansion
+    {
+      result=true;
+    } // else // true
     
     return result;
   } // private void installExpansions(XAPKManifest xapkManifest)
