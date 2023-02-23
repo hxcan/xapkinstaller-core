@@ -6,7 +6,7 @@ import java.util.Enumeration;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
+// import java.util.Collection;
 import java.util.Random;
 // import static com.stupidbeauty.comgooglewidevinesoftwaredrmremover.Constants.Networks.RabbitMQPassword;
 import com.google.gson.Gson;
@@ -28,9 +28,8 @@ import android.os.Looper;
 // import com.stupidbeauty.voiceui.VoiceUi;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageItemInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.Handler;
+// import android.os.Handler;
 import android.os.Looper;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
@@ -45,7 +44,6 @@ import android.os.Build;
 import android.database.ContentObserver;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
-// import androidx.core.content.FileProvider;
 import android.database.ContentObserver;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.ProgressCallback;
@@ -66,7 +64,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
-import android.content.ClipData;
+// import android.content.ClipData;
 import org.apache.commons.io.FileUtils;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -82,7 +80,7 @@ import android.widget.Toast;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+// import java.util.Collection;
 import java.util.HashMap;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
@@ -105,9 +103,10 @@ public class XAPKInstaller
   /**
   * Extract xapk file parts.
   */
-  private ArrayList<XAPKPart> extractXapk(String downloadFilePath) 
+  private XAPKManifest extractXapk(String downloadFilePath) 
   {
-    ArrayList<XAPKPart> result=new ArrayList();
+//     ArrayList<XAPKPart> result=new ArrayList();
+    XAPKManifest result=null; // result
     
     try
     {
@@ -122,19 +121,15 @@ public class XAPKInstaller
       {
         ZipArchiveEntry entry=(ZipArchiveEntry)(entries.nextElement());
         
-  //       XAPKPart xapkPart=new XAPKPart();
-        
-  //       xapkPart.set
-
         String entryFioleName=entry.getName(); // Get file name.
         
         InputStream entryInputStream=zipFile.getInputStream(entry);
         
-  //       Chen xin. open the inputstream to file.
+        //       Chen xin. open the inputstream to file.
   
         File downloadFolder = baseApplication.getExternalCacheDir();
 
-        String wholePath =downloadFolder.getPath()+ File.separator  + entryFioleName;
+        String wholePath =downloadFolder.getPath()+ File.separator  + entryFioleName; // Construct whole path.
 
         String entryFileFullName=wholePath;
 
@@ -158,15 +153,15 @@ public class XAPKInstaller
       XAPKManifest voiceRecognizeResult=gson.fromJson(text, XAPKManifest.class); // 解析成结果对象。
 
       Log.d(TAG,"extractXapk, 166, parse result: " + voiceRecognizeResult); //Debug.
-      result=voiceRecognizeResult.getSplitApks();
+      result=voiceRecognizeResult;
     }
-    catch (IOException e)
+    catch (IOException e) 
     {
       Log.d(TAG,"extractXapk, 165, exception here"); //Debug.
       e.printStackTrace();
-    }
+    } // catch (IOException e) 
 
-    Log.d(TAG,"extractXapk, 168, result size: "+ result.size()); //Debug.
+//     Log.d(TAG,"extractXapk, 168, result size: "+ result.size()); //Debug.
     
     return result;
   } // private ArrayList<XAPKPart> extractXapk(String downloadFilePath)
@@ -179,102 +174,83 @@ public class XAPKInstaller
   {
     boolean result=false;
     
-//     try
+    XAPKManifest xapkManifest=extractXapk(downloadFilePath);
+    ArrayList<XAPKPart> xapkParts=xapkManifest.getSplitApks(); // Get apk parts.
+    
+    int partAmount=xapkParts.size();
+    
+    if (partAmount>0) // Got something
     {
-      ArrayList<XAPKPart> xapkParts=extractXapk(downloadFilePath);
+      installExpansions(xapkManifest); // Install expansions.
+    
+      requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
       
-      int partAmount=xapkParts.size();
-      
-      if (partAmount>0) // Got something
-      {
-//         int xapkPartCounter=0;
-//         
-//         for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++)
-//         {
-//           XAPKPart xapkPart=xapkParts.get(xapkPartCounter);
-//           
-//           String partFiePath=xapkPart.getFile();
-//           String partId=xapkPart.getId();
-//           
-//           File downloadFolder = baseApplication.getExternalCacheDir();
-// 
-//           String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
-// 
-// //           requestInstallApi(wholePath, statusReceiver, partId); // Request install by view.
-//         } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
-
-        requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
-
-        
-        result=true;
-      } // if (partAmount>0) // Got something
-    } // try
-//     catch(ZipException e)
-//     {
-//       e.printStackTrace();
-//     }
+      result=true;
+    } // if (partAmount>0) // Got something
     
     return result;
   } //private void requestInstall(String downloadFilePath)
   
-  private void requestInstallApiParts(ArrayList<XAPKPart> xapkParts, IntentSender statusReceiver) // Request install by view.
+  /**
+  * Install expansions.
+  */
+  private void installExpansions(XAPKManifest xapkManifest)
   {
-      PackageInstaller.Session session = null;
+    ArrayList<XAPKExpansion> xapkParts=xapkManifest.getExpansions(); // Get expansions.
+    
+    if (xapkParts!=null)
+    {
+    int xapkPartCounter=0;
+      
+    int partAmount=xapkParts.size();
     try
     {
-      PackageInstaller packageInstaller = baseApplication.getPackageManager().getPackageInstaller();
-      PackageInstaller.SessionParams params = new PackageInstaller.SessionParams( PackageInstaller.SessionParams.MODE_FULL_INSTALL);
-      int sessionId = packageInstaller.createSession(params);
-      session = packageInstaller.openSession(sessionId);
-
-        int xapkPartCounter=0;
+      for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++) // request parts one by one.
+      {
+        XAPKExpansion xapkPart=xapkParts.get(xapkPartCounter);
         
-        int partAmount=xapkParts.size();
-        for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++)
-        {
-          XAPKPart xapkPart=xapkParts.get(xapkPartCounter);
-          
-          String partFiePath=xapkPart.getFile();
-          String partId=xapkPart.getId();
-          
-          File downloadFolder = baseApplication.getExternalCacheDir();
+        String partFiePath=xapkPart.getFile();
+        String partId=xapkPart.getId();
+        
+        File downloadFolder = baseApplication.getExternalCacheDir();
 
-          String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
-          
-          String downloadFilePath= wholePath;
+        String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+        
+        String downloadFilePath= wholePath; // Get whole source path.
 
-          Log.d(TAG,"requestInstallApiParts, 250, add part: " + partId); //Debug.
-          addApkToInstallSession(downloadFilePath, session, partId);
+        Log.d(TAG,"requestInstallApiParts, 250, add part: " + partId); //Debug.
+//         addApkToInstallSession(downloadFilePath, session, partId);
 
-//           requestInstallApi(wholePath, statusReceiver, partId); // Request install by view.
-        } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
-  
-        Log.d(TAG,"requestInstallApiParts, 256, commit "); //Debug.
-        session.commit(statusReceiver);
+// 	public static final String LOG_BASE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"com.stupidbeauty.lanime"+File.separator+"Log"; //!<日志目录的路径。
+
+        File externalDirectory=Environment.getExternalStorageDirectory();
+        
+        String installFiePath= xapkPart.getInstallPath(); // Get install path.
+        
+        String targetWhoelPath=externalDirectory.getPath()+ File.separator  + installFiePath; // target install file path. obb file.
+        
+        File sourceFileObb=new File(downloadFilePath); // Source file.
+        File targetFileObb=new File(targetWhoelPath); // Target file.
+        
+        FileUtils.copyFile(sourceFileObb, targetFileObb); // Copy file.
+      } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
+
+      Log.d(TAG,"requestInstallApiParts, 256, commit "); //Debug.
+//       session.commit(statusReceiver);
     }
     catch (IOException e) 
     {
       throw new RuntimeException("Couldn't install package", e);
-    }
-    catch (RuntimeException e) 
-    {
-      if (session != null) 
-      {
-        session.abandon();
-      }
-      throw e;
-    }
-
-  } // private void requestInstallApiParts(ArrayList<XAPKPart> xapkParts, IntentSender statusReceiver)
-
+    } // catch (IOException e) 
+    } // if (xapkParts!=null)
+    
+  } // private void installExpansions(XAPKManifest xapkManifest)
+  
   /**
-  * 要求安装应用
-  * @param downloadFilePath 应用安装包路径
+  * Request install split apks.
   */
-  private void requestInstallApi(String downloadFilePath, IntentSender statusReceiver, String partId)
+  private void requestInstallApiParts(ArrayList<XAPKPart> xapkParts, IntentSender statusReceiver)
   {
-    //   https://github.com/aosp-mirror/platform_development/blob/master/samples/ApiDemos/src/com/example/android/apis/content/InstallApkSessionApi.java
-
     PackageInstaller.Session session = null;
     try
     {
@@ -283,38 +259,48 @@ public class XAPKInstaller
       int sessionId = packageInstaller.createSession(params);
       session = packageInstaller.openSession(sessionId);
 
-      //                     addApkToInstallSession("HelloActivity.apk", session);
-      addApkToInstallSession(downloadFilePath, session, partId);
+      int xapkPartCounter=0;
+      
+      int partAmount=xapkParts.size();
+      for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++) // request parts one by one.
+      {
+        XAPKPart xapkPart=xapkParts.get(xapkPartCounter);
+        
+        String partFiePath=xapkPart.getFile();
+        String partId=xapkPart.getId();
+        
+        File downloadFolder = baseApplication.getExternalCacheDir();
 
-      // Create an install status receiver.
-      //                     Context context = InstallApkSessionApi.this;
-//       Intent intent = new Intent(baseApplication, ApkInstallActivity.class);
-//       intent.setAction(PACKAGE_INSTALLED_ACTION);
-//       PendingIntent pendingIntent = PendingIntent.getActivity(baseApplication, 0, intent, 0);
-//       IntentSender statusReceiver = pendingIntent.getIntentSender();
+        String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+        
+        String downloadFilePath= wholePath;
 
-      // Commit the session (this will start the installation workflow).
+        Log.d(TAG,"requestInstallApiParts, 250, add part: " + partId); //Debug.
+        addApkToInstallSession(downloadFilePath, session, partId);
+      } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
+
+      Log.d(TAG,"requestInstallApiParts, 256, commit "); //Debug.
       session.commit(statusReceiver);
     }
     catch (IOException e) 
     {
       throw new RuntimeException("Couldn't install package", e);
     }
-    catch (RuntimeException e) 
+    catch (RuntimeException e) // Other runtime exceptions
     {
       if (session != null) 
       {
         session.abandon();
       }
       throw e;
-    }
-  } //private void requestInstall(String downloadFilePath)
+    } // catch (RuntimeException e) // Other runtime exceptions
+  } // private void requestInstallApiParts(ArrayList<XAPKPart> xapkParts, IntentSender statusReceiver)
 
   private void addApkToInstallSession(String assetName, PackageInstaller.Session session, String partId) throws IOException 
   {
     // It's recommended to pass the file size to openWrite(). Otherwise installation may fail
     // if the disk is almost full.
-//     OutputStream packageInSession = session.openWrite("package", 0, -1);
+
     OutputStream packageInSession = session.openWrite(partId, 0, -1);
         
     File apkFileObject=new File(assetName);
@@ -326,7 +312,7 @@ public class XAPKInstaller
     packageInSession.write(buffer, 0, n);
                 
     packageInSession.close();
-  }
+  } // private void addApkToInstallSession(String assetName, PackageInstaller.Session session, String partId) throws IOException 
 
   public XAPKInstaller(Context context) 
   {

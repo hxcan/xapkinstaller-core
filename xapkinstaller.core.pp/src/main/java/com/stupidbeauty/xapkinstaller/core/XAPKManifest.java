@@ -22,6 +22,7 @@ class XAPKManifest
 {
   private static final String TAG="XAPKManifest"; //!< 输出调试信息了时使用的标记
 	private ArrayList<XAPKPart> splitApks; //!< split apks list.
+	private ArrayList<XAPKExpansion> expansions; //!< expansions list.
 	private ArrayList<XAPKPart> split_apks; //!< split apks list.
 
 	public ArrayList<XAPKPart> getSplitApks()
@@ -39,5 +40,10 @@ class XAPKManifest
     }
 	
     return result;
+	} // public ArrayList<XAPKPart> getSplitApks()
+
+		public ArrayList<XAPKExpansion> getExpansions()
+	{
+    return expansions;
 	} // public ArrayList<XAPKPart> getSplitApks()
 }
