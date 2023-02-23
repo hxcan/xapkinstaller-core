@@ -8,7 +8,7 @@ android
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  compileSdkVersion 29
+  compileSdkVersion 30
 
   defaultConfig 
   {

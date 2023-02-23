@@ -1,14 +1,15 @@
 package com.stupidbeauty.xapkinstaller.core;
 
+import android.provider.Settings;
+import android.content.Intent;
+import android.os.Environment;
 import java.util.zip.ZipException;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import java.util.Enumeration;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-// import java.util.Collection;
 import java.util.Random;
-// import static com.stupidbeauty.comgooglewidevinesoftwaredrmremover.Constants.Networks.RabbitMQPassword;
 import com.google.gson.Gson;
 import java.io.OutputStream;
 import android.content.IntentSender;
@@ -25,11 +26,9 @@ import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.app.Application;
 import android.os.Looper;
-// import com.stupidbeauty.voiceui.VoiceUi;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageItemInfo;
 import android.content.pm.ResolveInfo;
-// import android.os.Handler;
 import android.os.Looper;
 import android.speech.SpeechRecognizer;
 import android.util.Log;
@@ -181,69 +180,125 @@ public class XAPKInstaller
     
     if (partAmount>0) // Got something
     {
-      installExpansions(xapkManifest); // Install expansions.
-    
-      requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
+      boolean installExpansinCussess= installExpansions(xapkManifest); // Install expansions.
       
-      result=true;
+      if (installExpansinCussess)
+      {
+        requestInstallApiParts(xapkParts, statusReceiver); // Request install by view.
+        
+        result=true;
+      } // if (installExpansinCussess)
     } // if (partAmount>0) // Got something
     
     return result;
   } //private void requestInstall(String downloadFilePath)
   
+    /**
+    *   Goto file manager settings page.
+    */
+    private void gotoFileManagerSettingsPage()
+    {
+      Log.d(TAG, "gotoFileManagerSettingsPage"); //Debug.
+
+      Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);  // 跳转语言和输入设备
+
+      intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+      String packageNmae=baseApplication.getPackageName();
+      Log.d(TAG, "gotoFileManagerSettingsPage, package name: " + packageNmae); //Debug.
+
+      String url = "package:"+packageNmae;
+
+      Log.d(TAG, "gotoFileManagerSettingsPage, url: " + url); //Debug.
+
+      intent.setData(Uri.parse(url));
+
+      baseApplication.startActivity(intent);
+    } // private void gotoFileManagerSettingsPage()
+
+    /**
+    *  CheCK THE permission of file manager.
+    */
+    private void checkFileManagerPermission()
+    {
+      Log.d(TAG, "checkFileManagerPermission " ); //Debug.
+      
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) // Android 11. isExternalStorageManager
+      {
+        boolean isFileManager=Environment.isExternalStorageManager();
+
+        Log.d(TAG, "checkFileManagerPermission, is file manager: " + isFileManager ); //Debug.
+        if (isFileManager) // Is file manager
+        {
+        } // if (isFileManager) // Is file manager
+        else // Not file manager
+        {
+          // Chen xin
+          gotoFileManagerSettingsPage(); // Goto file manager settings page.
+        } // else // Not file manager
+      }
+    } // private void checkFileManagerPermission()
+
   /**
   * Install expansions.
   */
-  private void installExpansions(XAPKManifest xapkManifest)
+  private boolean installExpansions(XAPKManifest xapkManifest)
   {
+    boolean result=false;
     ArrayList<XAPKExpansion> xapkParts=xapkManifest.getExpansions(); // Get expansions.
     
     if (xapkParts!=null)
     {
-    int xapkPartCounter=0;
-      
-    int partAmount=xapkParts.size();
-    try
-    {
-      for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++) // request parts one by one.
+      checkFileManagerPermission(); // CheCK THE permission of file manager.
+      int xapkPartCounter=0;
+        
+      int partAmount=xapkParts.size();
+      try
       {
-        XAPKExpansion xapkPart=xapkParts.get(xapkPartCounter);
-        
-        String partFiePath=xapkPart.getFile();
-        String partId=xapkPart.getId();
-        
-        File downloadFolder = baseApplication.getExternalCacheDir();
+        for(xapkPartCounter=0; xapkPartCounter< partAmount; xapkPartCounter++) // request parts one by one.
+        {
+          XAPKExpansion xapkPart=xapkParts.get(xapkPartCounter);
+          
+          String partFiePath=xapkPart.getFile();
+          String partId=xapkPart.getId();
+          
+          File downloadFolder = baseApplication.getExternalCacheDir();
 
-        String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
-        
-        String downloadFilePath= wholePath; // Get whole source path.
+          String wholePath =downloadFolder.getPath()+ File.separator  + partFiePath;
+          
+          String downloadFilePath= wholePath; // Get whole source path.
 
-        Log.d(TAG,"requestInstallApiParts, 250, add part: " + partId); //Debug.
-//         addApkToInstallSession(downloadFilePath, session, partId);
+          Log.d(TAG,"requestInstallApiParts, 250, add part: " + partId); //Debug.
+  //         addApkToInstallSession(downloadFilePath, session, partId);
 
-// 	public static final String LOG_BASE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"com.stupidbeauty.lanime"+File.separator+"Log"; //!<日志目录的路径。
+  // 	public static final String LOG_BASE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath()+ File.separator+"com.stupidbeauty.lanime"+File.separator+"Log"; //!<日志目录的路径。
 
-        File externalDirectory=Environment.getExternalStorageDirectory();
+          File externalDirectory=Environment.getExternalStorageDirectory();
+          
+          String installFiePath= xapkPart.getInstallPath(); // Get install path.
         
-        String installFiePath= xapkPart.getInstallPath(); // Get install path.
-        
-        String targetWhoelPath=externalDirectory.getPath()+ File.separator  + installFiePath; // target install file path. obb file.
-        
-        File sourceFileObb=new File(downloadFilePath); // Source file.
-        File targetFileObb=new File(targetWhoelPath); // Target file.
-        
-        FileUtils.copyFile(sourceFileObb, targetFileObb); // Copy file.
-      } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
+          String targetWhoelPath=externalDirectory.getPath()+ File.separator  + installFiePath; // target install file path. obb file.
+          
+          File sourceFileObb=new File(downloadFilePath); // Source file.
+          File targetFileObb=new File(targetWhoelPath); // Target file.
+          
+          FileUtils.copyFile(sourceFileObb, targetFileObb); // Copy file.
+        } // for(int xapkPartCounter=0; xapkPartCounter< xapkParts.length(); xapkPartCounter++)
 
-      Log.d(TAG,"requestInstallApiParts, 256, commit "); //Debug.
-//       session.commit(statusReceiver);
-    }
-    catch (IOException e) 
-    {
-      throw new RuntimeException("Couldn't install package", e);
-    } // catch (IOException e) 
+        Log.d(TAG,"requestInstallApiParts, 256, commit "); //Debug.
+  //       session.commit(statusReceiver);
+  
+        result=true;
+      }
+      catch (IOException e) 
+      {
+        Log.d(TAG,"installExpansions, 244, got exception"); //Debug.
+        e.printStackTrace();
+//         throw new RuntimeException("Couldn't install package", e);
+      } // catch (IOException e) 
     } // if (xapkParts!=null)
     
+    return result;
   } // private void installExpansions(XAPKManifest xapkManifest)
   
   /**
