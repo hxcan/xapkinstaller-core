@@ -369,11 +369,12 @@ public class XAPKInstaller
         
     File apkFileObject=new File(assetName);
             
-    byte[] buffer=FileUtils.readFileToByteArray(apkFileObject);
-            
-    int n=buffer.length;
-            
-    packageInSession.write(buffer, 0, n);
+    FileUtils.copyFile(apkFileObject, packageInSession); // Copy file.
+//     byte[] buffer=FileUtils.readFileToByteArray(apkFileObject);
+//             
+//     int n=buffer.length;
+//             
+//     packageInSession.write(buffer, 0, n);
                 
     packageInSession.close();
   } // private void addApkToInstallSession(String assetName, PackageInstaller.Session session, String partId) throws IOException 
